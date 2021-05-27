@@ -11,9 +11,6 @@
 
     <artifactId>cloud-eureka-server7001</artifactId>
     <packaging>pom</packaging>
-    <modules>
-        <module>cloud-provider-payment8004</module>
-    </modules>
 
     <dependencies>
         <dependency>

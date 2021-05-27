@@ -1,0 +1,19 @@
+server:
+  port: 80
+
+eureka:
+  client:
+    # 表示是否将自己注册进EureakaServer默认为true
+    register-with-eureka: false
+    service-url:
+      defaultZone: http://eureka8080.com:8080/eureka/,http://eureka7002.com:7002/eureka/
+
+
+ribbon:
+  # 建立连接所用时间
+  ReadTimeout: 5000
+  connetTimeout: 5000
+
+logging:
+  level:
+    com.xinshiyun.springcloud.service.PaymentFeignService: debug
