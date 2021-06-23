@@ -2,6 +2,7 @@ package com.xinshiyun.springcloud.controller;
 
 import com.netflix.hystrix.contrib.javanica.annotation.DefaultProperties;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import com.xinshiyun.springcloud.service.PaymentService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +18,7 @@ import javax.annotation.Resource;
  **/
 @RestController
 @Slf4j
+@DefaultProperties(defaultFallback = "paymentGlobalFallbackMethod")
 public class OrderHystrixController {
     @Resource
     private PaymentService paymentHystrixService;
@@ -29,8 +31,8 @@ public class OrderHystrixController {
      * @param id
      * @return
      */
-    @GetMapping("/consumer/payment/hystrix/ok/{id}")
-    public String paymentInfo_OK(@PathVariable("id") Integer id) {
+    @GetMapping("/payment/hystrix/ok/{id}")
+    public String paymentInfoOk(@PathVariable("id") Integer id) {
         return paymentHystrixService.paymentInfo_OK(id);
     }
 
@@ -41,27 +43,27 @@ public class OrderHystrixController {
      * @param id
      * @return
      */
-    @GetMapping("/consumer/payment/hystrix/timeout/{id}")
+    @GetMapping("/payment/hystrix/timeout/{id}")
     public String timeout(@PathVariable("id") Integer id) {
         return paymentHystrixService.paymentInfo_Timeout(id);
     }
 
-    /**
-     * 超时访问
-     * http://localhost/consumer/payment/hystrix/timeout/32
-     *
-     * @param id
-     * @return
-//     */
-//    @GetMapping("/consumer/payment/hystrix/timeout/{id}")
-//    /*@HystrixCommand(fallbackMethod = "paymentTimeOutFallbackMethod", commandProperties = {
-//            @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "1500")
-//    })*/
-//    @HystrixCommand
-//    public String paymentInfo_TimeOut(@PathVariable("id") Integer id) {
-//        //int age = 10/0;
-//        return paymentHystrixService.o(id);
-//    }
+
+    @GetMapping("/consumer/payment/hystrix/timeout/{id}")
+//    @HystrixCommand(fallbackMethod = "paymentTimeOutFallbackMethod", commandProperties = {
+//            @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "1000")
+//    })
+    @HystrixCommand
+    public String paymentInfoTimeOut(@PathVariable("id") Integer id) {
+        int age = 10 / 0;
+//        try {
+//            Thread.sleep(5000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+        String result = paymentHystrixService.paymentInfo_Timeout(id);
+        return result;
+    }
 
     /**
      * 超时方法fallback
@@ -77,7 +79,15 @@ public class OrderHystrixController {
      *
      * @return
      */
-    public String payment_Global_FallbackMethod() {
+    public String paymentGlobalFallbackMethod() {
         return "Global异常处理信息,请稍后重试.o(╥﹏╥)o";
+    }
+
+    //服务熔断
+    @GetMapping("/payment/circuit/{id}")
+    public String paymentCircuitBreaker(@PathVariable("id") Integer id){
+        String result = paymentHystrixService.paymentCircuitBreaker(id);
+        log.info("****result："+result);
+        return result;
     }
 }
